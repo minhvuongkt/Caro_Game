@@ -26,4 +26,4 @@
 # RULES:
 ## 1. This game is called Tic Tac Toe - with 3x3 button to choose
 ## 2. The winner is the one who makes 3 buttons of the same type appear in a straight/diagonal line.
-## 3. Not like normalize, this game will delete your first step in five step. Be careful !!!
+## 3. Not like normal, this game will delete your first step in five step. Be careful !!!
