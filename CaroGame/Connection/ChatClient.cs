@@ -24,7 +24,7 @@ namespace Client.Constants
                 try
                 {
                     byte[] data = new byte[1024 * 5000];
-                    int received = _connectToServer.client.Receive(data);
+                    int received = DataCache.client.Receive(data);
 
                     if (received > 0)
                     {
@@ -33,7 +33,18 @@ namespace Client.Constants
                         var receivedObj = _connectToServer.Deserialize<Models.Message>(validData);
                         if (receivedObj != null && !Utils._checkEmpty(receivedObj.MessageType))
                         {
-                            if (receivedObj.MessageType == "ChatList" || receivedObj.MessageType == "Chat")
+                            if (receivedObj.MessageType == "ChatList")
+                            {
+                                var chatList = DeserializeFromJsonElement<List<Chat>>(receivedObj.Data);
+                                if (chatList.Count > 0)
+                                {
+                                    foreach (var chatt in chatList)
+                                    {
+                                        DataCache.groupChatCache.Add(chatt);
+                                    }
+                                }
+                            }
+                            else if (receivedObj.MessageType == "Chat")
                             {
                                 var chat = DeserializeFromJsonElement<Chat>(receivedObj.Data);
                                 if (chat != null)

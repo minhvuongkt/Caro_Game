@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ namespace Client.Constants
         public static Dictionary<string, List<Chat>> chatCache { get; set; } = new Dictionary<string, List<Chat>>();
         // Cache group chat
         public static List<Chat> groupChatCache { get; set; } = new List<Chat>();
+        //Client kết nối đến server bằng socket
+        public static Socket client { get; set; }
 
     }
 }

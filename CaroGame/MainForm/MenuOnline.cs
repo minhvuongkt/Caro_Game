@@ -35,6 +35,8 @@ namespace Client.MainForm
 
         private void MenuOnline_FormClosing(object sender, FormClosingEventArgs e)
         {
+            var formGame = new CaroGames();
+            formGame.Show();
         }
     }
 }

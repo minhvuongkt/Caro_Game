@@ -117,6 +117,7 @@
             this.Name = "CaroGames";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Caro Game";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CaroGames_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

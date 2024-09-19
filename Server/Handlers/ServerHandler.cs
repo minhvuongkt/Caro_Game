@@ -382,33 +382,37 @@ namespace Server.Handlers
                                         break;
                                     }
                                 case "Chat":
-                                    var chatMessage = DeserializeFromJsonElement<Chat>(message.Data);
-                                    if (chatMessage.IsGroupChat)
                                     {
-                                        // Add the client to group chat if not already added
-                                        if (!groupChatMembers.Contains(client))
+                                        var chatMessage = DeserializeFromJsonElement<Chat>(message.Data);
+                                        if (chatMessage.IsGroupChat)
                                         {
-                                            groupChatMembers.Add(client);
+                                            // Add the client to group chat if not already added
+                                            if (!groupChatMembers.Contains(client))
+                                            {
+                                                groupChatMembers.Add(client);
+                                            }
+
+                                            // Cache the message
+                                            groupChatMessages.Add(chatMessage);
+
+                                            // Save to database and broadcast the message to all group members
+                                            messageDAL.AddChat(chatMessage);
+                                            BroadcastToGroupChat(client, chatMessage);
                                         }
-
-                                        // Cache the message
-                                        groupChatMessages.Add(chatMessage);
-
-                                        // Save to database and broadcast the message to all group members
-                                        messageDAL.AddChat(chatMessage);
-                                        BroadcastToGroupChat(chatMessage);
+                                        else
+                                        {
+                                            // Handle private chat messages
+                                            HandlePrivateChat(chatMessage);
+                                        }
+                                        break;
                                     }
-                                    else
-                                    {
-                                        // Handle private chat messages
-                                        HandlePrivateChat(chatMessage);
-                                    }
-                                    break;
 
                                 case "MessageRequest":
-                                    var request = DeserializeFromJsonElement<MessageRequest>(message.Data);
-                                    HandleMessageRequest(client, request);
-                                    break;
+                                    {
+                                        var request = DeserializeFromJsonElement<MessageRequest>(message.Data);
+                                        HandleMessageRequest(client, request);
+                                        break;
+                                    }
 
                                 // Handle other message types here if needed
 
@@ -428,13 +432,16 @@ namespace Server.Handlers
             }
         }
 
-        private void BroadcastToGroupChat(Chat message)
+        private void BroadcastToGroupChat(Socket client, Chat message)
         {
             foreach (var member in groupChatMembers)
             {
                 try
                 {
-                    Send(member, new Message { MessageType = "Chat", Data = message });
+                    if (member != client)
+                    {
+                        Send(member, new Message { MessageType = "Chat", Data = message });
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -461,9 +468,10 @@ namespace Server.Handlers
 
         private void HandleMessageRequest(Socket client, MessageRequest request)
         {
-            if (request.FriendUID == "group")
+            if (request.FriendUID == "Group Chat")
             {
                 // Return all group chat messages since LastMessageTime
+                groupChatMessages = messageDAL.GetChatsByGroup().ToList();
                 var newMessages = groupChatMessages.Where(m => m.Time > request.LastMessageTime).ToList();
                 Send(client, new Message { MessageType = "ChatList", Data = newMessages });
             }

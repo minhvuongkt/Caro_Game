@@ -23,9 +23,26 @@ namespace Client.MainForm
             _chatClient.OnMessageReceived += OnMessageReceivedHandler;
             // Bắt đầu luồng nhận tin nhắn
             Task.Run(() => _chatClient.ReceiveMessages());
+            DisableControls();
             LoadFriends();
         }
-
+        private void DisableControls()
+        {
+            if (listBoxFriend.Items.Count < 1 || currentFriendUID == "")
+            {
+                txtMessage.Visible = false;
+                txtChatWith.Visible = false;
+                btnSend.Visible = false;
+                richTextBoxMessages.Visible = false;
+            }
+            else
+            {
+                txtMessage.Visible = true;
+                txtChatWith.Visible = true;
+                btnSend.Visible = true;
+                richTextBoxMessages.Visible = true;
+            }
+        }
         private void LoadFriends()
         {
             listBoxFriend.Items.Clear();
@@ -47,13 +64,21 @@ namespace Client.MainForm
         }
         private void listBoxFriend_SelectedIndexChanged(object sender, EventArgs e)
         {
-            currentFriendUID = listBoxFriend.SelectedItem.ToString();
-
+            if(listBoxFriend.SelectedItem == null) return;
+            if(listBoxFriend.SelectedItem.ToString() == "Group Chat") currentFriendUID = listBoxFriend.SelectedItem.ToString(); //Uid group chat
+            else currentFriendUID = listBoxFriend.SelectedItem.ToString().Split('|')[0]; //Lấy uid người dùng
+            DisableControls();
             // Xóa nội dung hiện tại
             richTextBoxMessages.Clear();
 
             if (currentFriendUID == "Group Chat")
             {
+                txtChatWith.Text = "Group Chat";
+                // Yêu cầu tin nhắn mới từ server nếu chưa có trong cache
+                if (DataCache.groupChatCache.Count <= 0)
+                {
+                    RequestNewMessages(currentFriendUID, DateTime.MinValue);
+                }
                 // Hiển thị tin nhắn từ cache của group chat
                 foreach (var message in DataCache.groupChatCache)
                 {
@@ -62,6 +87,7 @@ namespace Client.MainForm
             }
             else
             {
+                txtChatWith.Text = GetNameByUID(currentFriendUID);
                 // Hiển thị tin nhắn từ cache của bạn bè
                 LoadChatFromCache(currentFriendUID);
 
@@ -145,8 +171,20 @@ namespace Client.MainForm
             if (chat.IsGroupChat)
             {
                 txtChatWith.Text = "Group Chat";
-                richTextBoxMessages.AppendText($"{chat.SenderUID}: {displayMessage}\n");
+                if (chat.SenderUID == DataCache.Player.UID)
+                {
+                    richTextBoxMessages.SelectionAlignment = HorizontalAlignment.Right;
+                    richTextBoxMessages.AppendText($"{displayMessage} :[You] \n");
+                }
+                else
+                {
+                    txtChatWith.Text = $"{GetNameByUID(chat.ReceiverUID)}";
+                    richTextBoxMessages.SelectionAlignment = HorizontalAlignment.Left;
+                    richTextBoxMessages.AppendText($"{GetNameByUID(chat.SenderUID)}: {displayMessage} \n");
+                }
+                /*
                 richTextBoxMessages.SelectionAlignment = chat.SenderUID == DataCache.Player.UID ? HorizontalAlignment.Right : HorizontalAlignment.Left;
+                richTextBoxMessages.AppendText(chat.SenderUID == DataCache.Player.UID ? "[You]" : $"[{GetNameByUID(chat.SenderUID)}]"+$"  {displayMessage}\n");*/
             }
             else
             {
@@ -154,13 +192,13 @@ namespace Client.MainForm
                 if (chat.SenderUID == DataCache.Player.UID)
                 {
                     richTextBoxMessages.SelectionAlignment = HorizontalAlignment.Right;
-                    richTextBoxMessages.AppendText($"[You]: {displayMessage}\n");
+                    richTextBoxMessages.AppendText($"{displayMessage} :[You] \n");
                 }
                 else
                 {
                     txtChatWith.Text = $"{GetNameByUID(chat.ReceiverUID)}";
                     richTextBoxMessages.SelectionAlignment = HorizontalAlignment.Left;
-                    richTextBoxMessages.AppendText($"{GetNameByUID(chat.SenderUID)}: {displayMessage}\n");
+                    richTextBoxMessages.AppendText($"{GetNameByUID(chat.SenderUID)}: {displayMessage} \n");
                 }
             }
 

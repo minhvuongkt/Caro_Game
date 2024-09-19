@@ -109,6 +109,7 @@
             this.richTextBoxMessages.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxMessages.Location = new System.Drawing.Point(0, 58);
             this.richTextBoxMessages.Name = "richTextBoxMessages";
+            this.richTextBoxMessages.ReadOnly = true;
             this.richTextBoxMessages.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
             this.richTextBoxMessages.Size = new System.Drawing.Size(637, 511);
             this.richTextBoxMessages.TabIndex = 4;
@@ -161,6 +162,7 @@
             this.Controls.Add(this.panelRights);
             this.Controls.Add(this.panelLeft);
             this.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(163)));
+            this.Location = new System.Drawing.Point(110, 220);
             this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "ChatForm";
             this.Text = "ChatForm";

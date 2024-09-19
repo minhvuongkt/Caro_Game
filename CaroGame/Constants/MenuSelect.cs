@@ -77,18 +77,20 @@ namespace Client.Constants
             this.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "MenuSelect";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.ResumeLayout(false);
 
         }
 
         private void btnBack_Click(object sender, EventArgs e)
         {
+            var formGame = new CaroGames();
+            formGame.Show();
             this.Close();
         }
 
         private void btnMenuPK_Click(object sender, EventArgs e)
-        {
+        {            
             var menupk = new MenuOnline();
             menupk.Show();
             this.Close();

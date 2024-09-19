@@ -66,12 +66,12 @@ namespace Server.SQLServer
             }
         }
 
-        public IList<Chat> GetChatsByGroup(string groupUID)
+        public IList<Chat> GetChatsByGroup()
         {
             using (var connection = Connect())
             {
-                var sql = "SELECT * FROM Chats WHERE ReceiverUID = @GroupUID AND IsGroupChat = 1";
-                return connection.Query<Chat>(sql, new { GroupUID = groupUID }).ToList();
+                var sql = "SELECT * FROM Chats WHERE IsGroupChat = 1";
+                return connection.Query<Chat>(sql).ToList();
             }
         }
 

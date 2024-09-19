@@ -21,7 +21,7 @@ namespace Server.Interfaces
         bool DeleteChat(int chatId);
 
         // Lấy tất cả tin nhắn trong một nhóm
-        IList<Chat> GetChatsByGroup(string groupUID);
+        IList<Chat> GetChatsByGroup();
 
         // Lấy tất cả tin nhắn của một người dùng
         IList<Chat> GetChatsByUser(string userUID);

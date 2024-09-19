@@ -22,7 +22,7 @@ namespace Client.Connection
                 while (true)
                 {
                     byte[] data = new byte[1024 * 5000];
-                    int received = _connectToServer.client.Receive(data);
+                    int received = DataCache.client.Receive(data);
 
                     if (received > 0)
                     {

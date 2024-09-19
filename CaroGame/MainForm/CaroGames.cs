@@ -33,7 +33,7 @@ namespace Client.MainForm
 
                     plClient.CreateNewPlayer(input);
                     var selectOptions = new MenuSelect();
-                    selectOptions.ShowDialog();
+                    selectOptions.Show();
 
                 }
                 else
@@ -44,9 +44,9 @@ namespace Client.MainForm
             else
             {
                 var selectOptions = new MenuSelect();
-                selectOptions.ShowDialog();
+                selectOptions.Show();
             }
-            //this.Close();
+            this.Hide();
         }
 
         private void btnTwoPlayer_Click(object sender, EventArgs e)
@@ -64,6 +64,11 @@ namespace Client.MainForm
         private void lbCopyright_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("http://facebook.com/miuuu.2k3");
+        }
+
+        private void CaroGames_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Environment.Exit(0);
         }
     }
 }

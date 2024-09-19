@@ -14,16 +14,15 @@ namespace Client.Connection
         public ConnectToServer() => Connect();
 
         private IPEndPoint IP;
-        public Socket client;
 
         public void Connect()
         {
-            IP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2003);
-            client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
-
+            if(DataCache.client != null && DataCache.client.Connected) return;
             try
             {
-                client.Connect(IP);
+                IP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2003);
+                DataCache.client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+                DataCache.client.Connect(IP);
             }
             catch (Exception er)
             {
@@ -35,7 +34,7 @@ namespace Client.Connection
 
         public void Close()
         {
-            client.Close();
+            DataCache.client.Close();
         }
 
         public void Send(object obj)
@@ -43,7 +42,7 @@ namespace Client.Connection
             if (obj != null && !string.IsNullOrEmpty(obj.ToString()))
             {
                 byte[] data = Serialize(obj);
-                client.Send(data);
+                DataCache.client.Send(data);
             }
         }
         public byte[] Serialize<T>(T obj)
