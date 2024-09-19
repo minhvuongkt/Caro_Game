@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BD6557E4-2676-4F1D-A4F3-596193D88145}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Client</RootNamespace>
+    <AssemblyName>Caro Game</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>tic-tac-toe.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.8.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=6.0.0.9, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.6.0.9\lib\net461\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Connection\ConnectToServer.cs" />
+    <Compile Include="Connection\ChatClient.cs" />
+    <Compile Include="Constants\DataCache.cs" />
+    <Compile Include="Constants\Infomation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Constants\Infomation.Designer.cs">
+      <DependentUpon>Infomation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Constants\MenuSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Constants\MyRandom.cs" />
+    <Compile Include="Connection\PlayerClient.cs" />
+    <Compile Include="Constants\SelectLevel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Constants\SelectOption.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Constants\Utils.cs" />
+    <Compile Include="MainForm\CaroGames.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\CaroGames.Designer.cs">
+      <DependentUpon>CaroGames.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\ChatForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\ChatForm.Designer.cs">
+      <DependentUpon>ChatForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\MenuOnline.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\MenuOnline.Designer.cs">
+      <DependentUpon>MenuOnline.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\Online.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\PlayBot.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\PlayBot.Designer.cs">
+      <DependentUpon>PlayBot.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\PvP.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\PvP.Designer.cs">
+      <DependentUpon>PvP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Chat.cs" />
+    <Compile Include="Models\Friend.cs" />
+    <Compile Include="Models\Message.cs" />
+    <Compile Include="Models\Player.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Constants\Infomation.resx">
+      <DependentUpon>Infomation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Constants\MenuSelect.resx">
+      <DependentUpon>MenuSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Constants\SelectLevel.resx">
+      <DependentUpon>SelectLevel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Constants\SelectOption.resx">
+      <DependentUpon>SelectOption.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\CaroGames.resx">
+      <DependentUpon>CaroGames.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\ChatForm.resx">
+      <DependentUpon>ChatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\MenuOnline.resx">
+      <DependentUpon>MenuOnline.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\Online.resx">
+      <DependentUpon>Online.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\PlayBot.resx">
+      <DependentUpon>PlayBot.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\PvP.resx">
+      <DependentUpon>PvP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="tic-tac-toe.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
