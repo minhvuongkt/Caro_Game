@@ -22,7 +22,7 @@
       Room Chat
    ### Room Chat:
       Here you can chat with other by their UID.
-      Or can chat with world with group chat!
+      Or can chat with group chat!
 # RULES:
 ## 1. This game is called Tic Tac Toe - with 3x3 button to choose
 ## 2. The winner is the one who makes 3 buttons of the same type appear in a straight/diagonal line.
