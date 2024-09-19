@@ -24,6 +24,6 @@
 
 ## Rules
 
-1. The game is called Caro - with a 3x3 board of buttons to choose from.
-2. The winner is the first to get 5 buttons of the same type in a row (horizontally, vertically, or diagonally).
+1. The game is called Tic Tac Toe - with a 3x3 board of buttons to choose from.
+2. The winner is the first to get 3 buttons of the same type in a row (horizontally, vertically, or diagonally).
 3. **Special rule:** After every 5 turns, your first move will be deleted. Be careful!!!
