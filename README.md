@@ -1,29 +1,29 @@
-# Project Caro Game Developed By Miu2k3
-## 1. 3 Mode to play
- ### Mode PK with bot
- ### Mode PvP
- ### Mode PvP Online
-## 2. Mode Pk with bot have 2 options to choose:
-   ### Stupid Bot: 
-      Like it name, bot so stupid
-   ### Normal Bot:
-      Bot is more clever than other mode.
-      Can block your line to win (if you lose this mode, you are a chicken)
-      Only have 3s to thinking the next step to go.
-## 3. Mode PvP have 3 options of time to choose:
-    It 10s - 20s - 30s: When the time down, bot will play for you.
-    Player solo with Player offline.
-## 4. Mode PvP Online:
-   ### Can get your infomation, first come in, you have to set your name.
-   ### CAN NOT change infomation !!!
-   ### PvP Online Have 3 Mode:
-      Random Match - On Update
-      Find Opponent
-      Room Chat
-   ### Room Chat:
-      Here you can chat with other by their UID.
-      Or can chat with group chat!
-# RULES:
-## 1. This game is called Tic Tac Toe - with 3x3 button to choose
-## 2. The winner is the one who makes 3 buttons of the same type appear in a straight/diagonal line.
-## 3. Not like normal, this game will delete your first step in five step. Be careful !!!
+# Caro Game - Developed by Miu2k3
+
+**1. Game Modes**
+
+* **Play against the bot:**
+    * **Stupid Bot:** As the name suggests, this bot is quite simple.
+    * **Normal Bot:** This bot is a bit smarter. It can block your winning lines (if you lose in this mode, you're a chicken). It only has 3 seconds to think about its next move.
+
+* **PvP (play against another person on the same machine):**
+    * **Time options:** 10 seconds, 20 seconds, or 30 seconds. When the time runs out, the bot will play for you.
+
+* **PvP Online (play online):**
+    * **Player information:** When you join for the first time, you need to set your name.
+    * You **CANNOT** change your information after it's set.
+    * **Game modes:**
+        * Random Match (coming soon)
+        * Find Opponent
+        * Chat Room
+
+**Chat Room:**
+
+* Chat with other players using their UIDs.
+* Group chat.
+
+## Rules
+
+1. The game is called Caro - with a 3x3 board of buttons to choose from.
+2. The winner is the first to get 5 buttons of the same type in a row (horizontally, vertically, or diagonally).
+3. **Special rule:** After every 5 turns, your first move will be deleted. Be careful!!!
