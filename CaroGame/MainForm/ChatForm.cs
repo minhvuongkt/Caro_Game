@@ -53,7 +53,7 @@ namespace Client.MainForm
             // Thêm danh sách bạn bè vào listBoxFriend
             foreach (var friend in DataCache.Player.Friends)
             {
-                listBoxFriend.Items.Add(friend.UID + "|" + friend.Name); // Hiển thị tên nếu muốn: friend.Fullname
+                listBoxFriend.Items.Add(friend.UID + "|" + friend.Name); 
             }
 
             // Nếu có bạn bè được chọn trước đó, tải lại tin nhắn từ cache

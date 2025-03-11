@@ -16,11 +16,23 @@ namespace Server
         }
         static void Main(string[] args)
         {
+            beginn:
             var cmd = Console.ReadLine();
             if (cmd == "exit")
             {
                 ServerHandler.Close();
             }
+            else if(cmd == "clear")
+            {
+                Console.Clear();
+                goto beginn;
+            }
+            else
+            {
+                Console.WriteLine("Invalid Command");
+                goto beginn;
+            }
+
         }
     }
 }

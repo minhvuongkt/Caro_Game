@@ -286,7 +286,6 @@ namespace Server.Handlers
             }
             Environment.Exit(0);
         }
-
         public void Send(Socket client, object obj)
         {
             if (client != null && obj != null)
@@ -302,7 +301,6 @@ namespace Server.Handlers
                 }
             }
         }
-
         private void Receive(Socket client)
         {
             try

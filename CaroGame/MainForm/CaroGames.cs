@@ -27,14 +27,12 @@ namespace Client.MainForm
         {
             if (DataCache.Player == null)
             {
-                string input = Interaction.InputBox("Nhập tên của bạn:", "Nhập liệu", "");
+                string input = Interaction.InputBox("Nhập tên của bạn:", "Nhập tên", "");
                 if (!string.IsNullOrEmpty(input))
                 {
-
                     plClient.CreateNewPlayer(input);
                     var selectOptions = new MenuSelect();
                     selectOptions.Show();
-
                 }
                 else
                 {
