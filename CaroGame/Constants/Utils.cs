@@ -11,6 +11,8 @@ namespace Client.Constants
 {
     public class Utils
     {
+        // Single static instance avoids constructing a new Random on every call
+        private static readonly MyRandom _random = new MyRandom();
 
         public static void WriteLog(string log)
         {
@@ -22,20 +24,16 @@ namespace Client.Constants
         }
         public static int RandomNumber(int max)
         {
-            var random = new MyRandom();
-            return random.NextInt(max);
+            return _random.NextInt(max);
         }
         public static int RandomNumber(int min, int max)
         {
-            var random = new MyRandom();
-            if (min <= max) return random.NextInt(min, max);
-            (min, max) = (max, min);
-            return random.NextInt(min, max);
+            if (min <= max) return _random.NextInt(min, max);
+            return _random.NextInt(max, min);
         }
         public static double RandomNumber(double minimum, double maximum)
         {
-            Random random = new Random();
-            return random.NextDouble() * (maximum - minimum) + minimum;
+            return _random.R.NextDouble() * (maximum - minimum) + minimum;
         }
         public static string GetDiskSerialNumber()
         {

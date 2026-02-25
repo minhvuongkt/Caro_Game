@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Server.Interfaces;
 using Server.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -72,6 +73,15 @@ namespace Server.SQLServer
             {
                 var sql = "SELECT * FROM Chats WHERE IsGroupChat = 1";
                 return connection.Query<Chat>(sql).ToList();
+            }
+        }
+
+        public IList<Chat> GetChatsByGroupSince(DateTime since)
+        {
+            using (var connection = Connect())
+            {
+                var sql = "SELECT * FROM Chats WHERE IsGroupChat = 1 AND Time > @Since";
+                return connection.Query<Chat>(sql, new { Since = since }).ToList();
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using Server.Models;
+using System;
 using System.Collections.Generic;
 namespace Server.Interfaces
 {
@@ -22,6 +23,9 @@ namespace Server.Interfaces
 
         // Lấy tất cả tin nhắn trong một nhóm
         IList<Chat> GetChatsByGroup();
+
+        // Lấy tin nhắn nhóm mới hơn một thời điểm nhất định (lọc ở tầng SQL)
+        IList<Chat> GetChatsByGroupSince(DateTime since);
 
         // Lấy tất cả tin nhắn của một người dùng
         IList<Chat> GetChatsByUser(string userUID);

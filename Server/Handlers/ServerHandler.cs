@@ -210,6 +210,8 @@ namespace Server.Handlers
         private IPEndPoint IP { get; set; }
         private Socket server { get; set; }
         private List<Socket> clientList { get; set; }
+        // Dictionary for O(1) lookup of clients by their remote-endpoint string
+        private Dictionary<string, Socket> clientDict { get; set; }
         private readonly ChatDAL messageDAL;
         private readonly PlayerDAL playerDAL;
 
@@ -229,6 +231,7 @@ namespace Server.Handlers
         private void KhoiTao()
         {
             clientList = new List<Socket>();
+            clientDict = new Dictionary<string, Socket>();
             IP = new IPEndPoint(IPAddress.Parse(Driver.gI().ServerIP), Driver.gI().ServerPort);
             StartServer();
         }
@@ -251,6 +254,7 @@ namespace Server.Handlers
                     {
                         Socket client = server.Accept();
                         clientList.Add(client);
+                        clientDict[client.RemoteEndPoint.ToString()] = client;
                         Console.WriteLine($"{client.RemoteEndPoint} is connected!");
 
                         Thread receiveThread = new Thread(() => Receive(client));
@@ -268,8 +272,6 @@ namespace Server.Handlers
             listenThread.IsBackground = true;
             listenThread.Start();
         }
-
-        public void Close()
         {
             try
             {
@@ -305,11 +307,15 @@ namespace Server.Handlers
 
         private void Receive(Socket client)
         {
+            // Allocate the receive buffer once and reuse it across all iterations
+            byte[] data = new byte[1024 * 5000];
+            // Cache endpoint strings to avoid repeated ToString() + Split() allocations
+            string endpointStr = client.RemoteEndPoint.ToString();
+            string clientIP = endpointStr.Split(':')[0];
             try
             {
                 while (true)
                 {
-                    byte[] data = new byte[1024 * 5000];
                     int receivedBytes = client.Receive(data);
 
                     if (receivedBytes > 0)
@@ -330,7 +336,7 @@ namespace Server.Handlers
                                         {
                                             if (player.ID == 0 && player.UID != "GetPlayer")
                                             {
-                                                player.UID = client.RemoteEndPoint.ToString().Split(':')[0];
+                                                player.UID = clientIP;
                                                 var checkPl = playerDAL.GetPlayerByUID(player.UID);
                                                 if (checkPl == null)
                                                 {
@@ -342,7 +348,7 @@ namespace Server.Handlers
                                                             Data = player
                                                         };
                                                         Send(client, msg);
-                                                        Console.WriteLine($"Create successful player UID: {client.RemoteEndPoint.ToString().Split(':')[0]}");
+                                                        Console.WriteLine($"Create successful player UID: {clientIP}");
                                                     }
                                                 }
                                                 else if (checkPl != null)
@@ -358,7 +364,7 @@ namespace Server.Handlers
                                             }
                                             else if (player.UID == "GetPlayer")
                                             {
-                                                var checkPl = playerDAL.GetPlayerByUID(client.RemoteEndPoint.ToString().Split(':')[0]);
+                                                var checkPl = playerDAL.GetPlayerByUID(clientIP);
                                                 if (checkPl != null)
                                                 {
                                                     var msg = new Message()
@@ -370,7 +376,7 @@ namespace Server.Handlers
                                                 }
                                                 else
                                                 {
-                                                    Console.WriteLine($"Unknown player UID: {client.RemoteEndPoint.ToString().Split(':')[0]}");
+                                                    Console.WriteLine($"Unknown player UID: {clientIP}");
                                                 }
                                                 break;
                                             }
@@ -428,6 +434,7 @@ namespace Server.Handlers
             {
                 Console.WriteLine($"Receive exception: {ex.Message}");
                 clientList.Remove(client);
+                clientDict.Remove(endpointStr);
                 client.Close();
             }
         }
@@ -452,10 +459,8 @@ namespace Server.Handlers
 
         private void HandlePrivateChat(Chat message)
         {
-            // Find the recipient from the client list
-            var receiver = clientList.FirstOrDefault(c => c.RemoteEndPoint.ToString() == message.ReceiverUID);
-
-            if (receiver != null)
+            // Use dictionary for O(1) lookup instead of O(n) linear search
+            if (clientDict.TryGetValue(message.ReceiverUID, out Socket receiver))
             {
                 // Send the message to the recipient
                 Send(receiver, new Message { MessageType = "Chat", Data = message });
@@ -470,9 +475,8 @@ namespace Server.Handlers
         {
             if (request.FriendUID == "Group Chat")
             {
-                // Return all group chat messages since LastMessageTime
-                groupChatMessages = messageDAL.GetChatsByGroup().ToList();
-                var newMessages = groupChatMessages.Where(m => m.Time > request.LastMessageTime).ToList();
+                // Filter directly in SQL instead of loading all messages then filtering in memory
+                var newMessages = messageDAL.GetChatsByGroupSince(request.LastMessageTime).ToList();
                 Send(client, new Message { MessageType = "ChatList", Data = newMessages });
             }
             else
@@ -505,6 +509,7 @@ namespace Server.Handlers
         public void RemoveClient(Socket client)
         {
             clientList.Remove(client);
+            clientDict.Remove(client.RemoteEndPoint.ToString());
             client.Disconnect(false);
             groupChatMembers.Remove(client);
         }

@@ -17,11 +17,12 @@ namespace Client.Connection
 
         public void Receive()
         {
+            // Allocate the receive buffer once and reuse it across all iterations
+            byte[] data = new byte[1024 * 5000];
             try
             {
                 while (true)
                 {
-                    byte[] data = new byte[1024 * 5000];
                     int received = DataCache.client.Receive(data);
 
                     if (received > 0)
