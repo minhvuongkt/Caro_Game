@@ -4,7 +4,6 @@ using Client.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Client.MainForm
@@ -14,15 +13,12 @@ namespace Client.MainForm
         readonly ChatClient _chatClient;
         private string currentFriendUID { get; set; }
         private PlayerClient plHandler { get; set; }
-
-
         public ChatForm()
         {
             _chatClient = new ChatClient();
             InitializeComponent();
             _chatClient.OnMessageReceived += OnMessageReceivedHandler;
-            // Bắt đầu luồng nhận tin nhắn
-            Task.Run(() => _chatClient.ReceiveMessages());
+            // Dispatcher already handles receiving; no separate thread needed
             DisableControls();
             LoadFriends();
         }

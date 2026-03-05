@@ -3,8 +3,6 @@ using Client.Constants;
 using Microsoft.VisualBasic;
 using System;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Client.MainForm
@@ -14,15 +12,18 @@ namespace Client.MainForm
         private PlayerClient plClient { get; set; }
         public CaroGames()
         {
-            plClient = new PlayerClient();
+            plClient = new PlayerClient();   // connects + registers "Player" handler
+            // Also init GameClient singleton so it registers its handlers before the dispatcher starts
+            var _ = GameClient.Instance;
 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeComponent();
-            var thread = new Thread(() => plClient.Receive());
-            thread.IsBackground = true;
-            thread.Start();
+
+            // Start single central dispatcher (replaces per-client receive threads)
+            MessageDispatcher.Instance.Start();
             plClient.GetPlayer();
         }
+
         private void btnPKOnline_Click(object sender, EventArgs e)
         {
             if (DataCache.Player == null)
@@ -30,11 +31,9 @@ namespace Client.MainForm
                 string input = Interaction.InputBox("Nhập tên của bạn:", "Nhập liệu", "");
                 if (!string.IsNullOrEmpty(input))
                 {
-
                     plClient.CreateNewPlayer(input);
                     var selectOptions = new MenuSelect();
                     selectOptions.Show();
-
                 }
                 else
                 {

@@ -1,10 +1,6 @@
 ﻿using Client.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Client.Constants
 {
@@ -15,8 +11,12 @@ namespace Client.Constants
         public static Dictionary<string, List<Chat>> chatCache { get; set; } = new Dictionary<string, List<Chat>>();
         // Cache group chat
         public static List<Chat> groupChatCache { get; set; } = new List<Chat>();
-        //Client kết nối đến server bằng socket
+        // Client kết nối đến server bằng socket
         public static Socket client { get; set; }
 
+        // Room / game state
+        public static List<Room> Rooms { get; set; } = new List<Room>();
+        public static Room CurrentRoom { get; set; }
+        public static bool IsSpectating { get; set; }
     }
 }
