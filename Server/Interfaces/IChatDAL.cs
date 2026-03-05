@@ -1,36 +1,30 @@
 ﻿using Server.Models;
 using System;
 using System.Collections.Generic;
+
 namespace Server.Interfaces
 {
     public interface IChatDAL
     {
-
-        // Thêm một tin nhắn vào cơ sở dữ liệu
         bool AddChat(Chat chat);
 
-        // Lấy tin nhắn theo ID
         Chat GetChatById(int chatId);
 
-        // Lấy tất cả tin nhắn giữa hai người dùng
         IList<Chat> GetChatsBetweenUsers(string user1UID, string user2UID);
 
-        // Cập nhật một tin nhắn
+        /// <summary>Returns private messages between two users sent after <paramref name="since"/>.</summary>
+        IList<Chat> GetChatsBetweenUsersSince(string user1UID, string user2UID, DateTime since);
+
         bool UpdateChat(Chat chat);
 
-        // Xóa một tin nhắn
         bool DeleteChat(int chatId);
 
-        // Lấy tất cả tin nhắn trong một nhóm
         IList<Chat> GetChatsByGroup();
 
-        // Lấy tin nhắn nhóm mới hơn một thời điểm nhất định (lọc ở tầng SQL)
         IList<Chat> GetChatsByGroupSince(DateTime since);
 
-        // Lấy tất cả tin nhắn của một người dùng
         IList<Chat> GetChatsByUser(string userUID);
 
-        // Xóa tất cả tin nhắn của một người dùng
         bool DeleteChatsByUser(string userUID);
     }
 }

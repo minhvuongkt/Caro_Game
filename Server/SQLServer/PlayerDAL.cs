@@ -17,24 +17,12 @@ namespace Server.SQLServer
         {
             using (var connection = Connect())
             {
-                // Truy vấn dữ liệu, lưu cột Friends dưới dạng chuỗi
-                var sql = "SELECT ID, Fullname, UID, Friends AS FriendsJson, Score FROM Players WHERE UID = @UID";
+                var sql = @"SELECT ID, Fullname, UID, Friends AS FriendsJson,
+                                   Score, Wins, Losses, Draws
+                            FROM   Players
+                            WHERE  UID = @UID";
                 var player = connection.QueryFirstOrDefault<Player>(sql, new { UID = uid });
-
-                if (player != null && !string.IsNullOrEmpty(player.FriendsJson))
-                {
-                    try
-                    {
-                        // Chuyển đổi chuỗi JSON thành List<Friend>
-                        player.Friends = JsonSerializer.Deserialize<List<Friend>>(player.FriendsJson);
-                    }
-                    catch (JsonException ex)
-                    {
-                        Console.WriteLine($"Error deserializing Friends JSON: {ex.Message}");
-                        player.Friends = new List<Friend>(); // Gán danh sách trống nếu có lỗi
-                    }
-                }
-
+                DeserializeFriends(player);
                 return player;
             }
         }
@@ -43,8 +31,26 @@ namespace Server.SQLServer
         {
             using (var connection = Connect())
             {
-                var sql = "SELECT * FROM Players";
-                return connection.Query<Player>(sql).ToList();
+                var players = connection.Query<Player>(
+                    "SELECT ID, Fullname, UID, Friends AS FriendsJson, Score, Wins, Losses, Draws FROM Players")
+                    .ToList();
+                foreach (var p in players) DeserializeFriends(p);
+                return players;
+            }
+        }
+
+        public IList<Player> FindPlayersByName(string namePart)
+        {
+            using (var connection = Connect())
+            {
+                var sql = @"SELECT ID, Fullname, UID, Friends AS FriendsJson, Score, Wins, Losses, Draws
+                            FROM   Players
+                            WHERE  Fullname LIKE @Pattern
+                            LIMIT  20";
+                var players = connection.Query<Player>(sql,
+                    new { Pattern = $"%{namePart}%" }).ToList();
+                foreach (var p in players) DeserializeFriends(p);
+                return players;
             }
         }
 
@@ -52,18 +58,18 @@ namespace Server.SQLServer
         {
             using (var connection = Connect())
             {
-                var query = "INSERT INTO Players (Fullname, UID, Friends, Score) VALUES (@Fullname, @UID, @Friends, @Score)";
-
-                var param = new
+                var sql = @"INSERT INTO Players (Fullname, UID, Friends, Score, Wins, Losses, Draws)
+                            VALUES (@Fullname, @UID, @Friends, @Score, @Wins, @Losses, @Draws)";
+                return connection.Execute(sql, new
                 {
-                    Fullname = player.Fullname,
-                    UID = player.UID,
+                    player.Fullname,
+                    player.UID,
                     Friends = JsonSerializer.Serialize(player.Friends),
-                    Score = player.Score,
-
-                };
-                
-                return connection.Execute(query, param) > 0;
+                    player.Score,
+                    player.Wins,
+                    player.Losses,
+                    player.Draws
+                }) > 0;
             }
         }
 
@@ -71,23 +77,46 @@ namespace Server.SQLServer
         {
             using (var connection = Connect())
             {
-                var sql = @"
-                UPDATE Players
-                SET Fullname = @Fullname, 
-                    Friends = @Friends,
-                    Score = @Score
-                WHERE UID = @UID";
-
-                var param = new
+                var sql = @"UPDATE Players
+                            SET  Fullname = @Fullname,
+                                 Friends  = @Friends,
+                                 Score    = @Score,
+                                 Wins     = @Wins,
+                                 Losses   = @Losses,
+                                 Draws    = @Draws
+                            WHERE UID = @UID";
+                return connection.Execute(sql, new
                 {
-                    Fullname = player.Fullname,
-                    UID = player.UID,
+                    player.Fullname,
+                    player.UID,
                     Friends = JsonSerializer.Serialize(player.Friends),
-                    Score = player.Score,
+                    player.Score,
+                    player.Wins,
+                    player.Losses,
+                    player.Draws
+                }) > 0;
+            }
+        }
 
-                };
-
-                return connection.Execute(sql, param) > 0;
+        public bool UpdateScore(string uid, int scoreDelta, int winDelta,
+                                int lossDelta, int drawDelta)
+        {
+            using (var connection = Connect())
+            {
+                var sql = @"UPDATE Players
+                            SET  Score  = GREATEST(0, Score  + @ScoreDelta),
+                                 Wins   = Wins   + @WinDelta,
+                                 Losses = Losses + @LossDelta,
+                                 Draws  = Draws  + @DrawDelta
+                            WHERE UID = @UID";
+                return connection.Execute(sql, new
+                {
+                    UID        = uid,
+                    ScoreDelta = scoreDelta,
+                    WinDelta   = winDelta,
+                    LossDelta  = lossDelta,
+                    DrawDelta  = drawDelta
+                }) > 0;
             }
         }
 
@@ -95,8 +124,24 @@ namespace Server.SQLServer
         {
             using (var connection = Connect())
             {
-                var sql = "DELETE FROM Players WHERE UID = @UID";
-                return connection.Execute(sql, new { UID = uid }) > 0;
+                return connection.Execute(
+                    "DELETE FROM Players WHERE UID = @UID", new { UID = uid }) > 0;
+            }
+        }
+
+        // ── helper ────────────────────────────────────────────────────────────
+
+        private static void DeserializeFriends(Player player)
+        {
+            if (player == null || string.IsNullOrEmpty(player.FriendsJson)) return;
+            try
+            {
+                player.Friends = JsonSerializer.Deserialize<List<Friend>>(player.FriendsJson);
+            }
+            catch (JsonException ex)
+            {
+                Console.WriteLine($"Error deserializing Friends JSON: {ex.Message}");
+                player.Friends = new List<Friend>();
             }
         }
     }
