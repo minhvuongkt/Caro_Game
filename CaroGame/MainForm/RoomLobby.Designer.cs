@@ -23,6 +23,7 @@
             this.btnSpectate  = new System.Windows.Forms.Button();
             this.btnRefresh   = new System.Windows.Forms.Button();
             this.btnGroupChat = new System.Windows.Forms.Button();
+            this.btnMatchQueue = new System.Windows.Forms.Button();
             this.btnBack      = new System.Windows.Forms.Button();
             this.lblTitle     = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -34,77 +35,87 @@
             this.lvRooms.GridLines = true;
             this.lvRooms.Location = new System.Drawing.Point(12, 55);
             this.lvRooms.Name = "lvRooms";
-            this.lvRooms.Size = new System.Drawing.Size(660, 300);
+            this.lvRooms.Size = new System.Drawing.Size(760, 300);
             this.lvRooms.TabIndex = 0;
             this.lvRooms.UseCompatibleStateImageBehavior = false;
             this.lvRooms.View = System.Windows.Forms.View.Details;
             this.lvRooms.MultiSelect = false;
 
-            this.colName.Text = "Tên phòng";    this.colName.Width = 220;
-            this.colType.Text = "Game";         this.colType.Width = 100;
-            this.colStatus.Text = "Trạng thái"; this.colStatus.Width = 90;
-            this.colPlayers.Text = "Người chơi"; this.colPlayers.Width = 90;
-            this.colSpec.Text = "Khán giả";     this.colSpec.Width = 80;
+            this.colName.Text = "Tên phòng";    this.colName.Width = 260;
+            this.colType.Text = "Game";         this.colType.Width = 110;
+            this.colStatus.Text = "Trạng thái"; this.colStatus.Width = 100;
+            this.colPlayers.Text = "Người chơi"; this.colPlayers.Width = 100;
+            this.colSpec.Text = "Khán giả";     this.colSpec.Width = 90;
 
             // lblTitle
             this.lblTitle.AutoSize = true;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI Semilight", 16F);
-            this.lblTitle.Location = new System.Drawing.Point(12, 12);
+            this.lblTitle.Location = new System.Drawing.Point(12, 14);
             this.lblTitle.Name = "lblTitle";
             this.lblTitle.Text = "Phòng chơi Online";
 
-            int bw = 110, bh = 38, by = 370, bx = 12;
+            int bh = 40, by = 370, bx = 12;
 
-            // btnCreate
+            // btnCreate (110 wide)
             this.btnCreate.Text = "Tạo phòng";
-            this.btnCreate.Location = new System.Drawing.Point(bx, by); bx += bw + 8;
-            this.btnCreate.Size = new System.Drawing.Size(bw, bh);
+            this.btnCreate.Location = new System.Drawing.Point(bx, by); bx += 118;
+            this.btnCreate.Size = new System.Drawing.Size(110, bh);
             this.btnCreate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCreate.Click += new System.EventHandler(this.btnCreate_Click);
 
             // btnJoinPlayer
             this.btnJoinPlayer.Text = "Vào chơi";
-            this.btnJoinPlayer.Location = new System.Drawing.Point(bx, by); bx += bw + 8;
-            this.btnJoinPlayer.Size = new System.Drawing.Size(bw, bh);
+            this.btnJoinPlayer.Location = new System.Drawing.Point(bx, by); bx += 118;
+            this.btnJoinPlayer.Size = new System.Drawing.Size(110, bh);
             this.btnJoinPlayer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnJoinPlayer.Click += new System.EventHandler(this.btnJoinPlayer_Click);
 
             // btnSpectate
             this.btnSpectate.Text = "Xem";
-            this.btnSpectate.Location = new System.Drawing.Point(bx, by); bx += bw + 8;
-            this.btnSpectate.Size = new System.Drawing.Size(bw, bh);
+            this.btnSpectate.Location = new System.Drawing.Point(bx, by); bx += 118;
+            this.btnSpectate.Size = new System.Drawing.Size(110, bh);
             this.btnSpectate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSpectate.Click += new System.EventHandler(this.btnSpectate_Click);
 
             // btnRefresh
             this.btnRefresh.Text = "Làm mới";
-            this.btnRefresh.Location = new System.Drawing.Point(bx, by); bx += bw + 8;
-            this.btnRefresh.Size = new System.Drawing.Size(bw, bh);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Location = new System.Drawing.Point(bx, by); bx += 118;
+            this.btnRefresh.Size = new System.Drawing.Size(110, bh);
             this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
 
             // btnGroupChat
             this.btnGroupChat.Text = "Chat chung";
-            this.btnGroupChat.Location = new System.Drawing.Point(bx, by); bx += bw + 8;
-            this.btnGroupChat.Size = new System.Drawing.Size(bw, bh);
+            this.btnGroupChat.Location = new System.Drawing.Point(bx, by); bx += 118;
+            this.btnGroupChat.Size = new System.Drawing.Size(110, bh);
             this.btnGroupChat.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnGroupChat.Click += new System.EventHandler(this.btnGroupChat_Click);
 
+            // btnMatchQueue — random matchmaking (amber colour via UITheme)
+            this.btnMatchQueue.Text = "Ghép trận ngẫu nhiên";
+            this.btnMatchQueue.Name = "btnMatchQueue";
+            this.btnMatchQueue.Location = new System.Drawing.Point(bx, by); bx += 188;
+            this.btnMatchQueue.Size = new System.Drawing.Size(180, bh);
+            this.btnMatchQueue.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnMatchQueue.Click += new System.EventHandler(this.btnMatchQueue_Click);
+
             // btnBack
             this.btnBack.Text = "Quay lại";
+            this.btnBack.Name = "btnBack";
             this.btnBack.Location = new System.Drawing.Point(bx, by);
-            this.btnBack.Size = new System.Drawing.Size(bw, bh);
+            this.btnBack.Size = new System.Drawing.Size(110, bh);
             this.btnBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBack.Click += new System.EventHandler(this.btnBack_Click);
 
             // Form
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 420);
+            this.ClientSize = new System.Drawing.Size(784, 422);
             this.Controls.AddRange(new System.Windows.Forms.Control[] {
                 this.lblTitle, this.lvRooms,
                 this.btnCreate, this.btnJoinPlayer, this.btnSpectate,
-                this.btnRefresh, this.btnGroupChat, this.btnBack });
+                this.btnRefresh, this.btnGroupChat, this.btnMatchQueue, this.btnBack });
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "RoomLobby";
@@ -117,7 +128,7 @@
 
         private System.Windows.Forms.ListView lvRooms;
         private System.Windows.Forms.ColumnHeader colName, colType, colStatus, colPlayers, colSpec;
-        private System.Windows.Forms.Button btnCreate, btnJoinPlayer, btnSpectate, btnRefresh, btnGroupChat, btnBack;
+        private System.Windows.Forms.Button btnCreate, btnJoinPlayer, btnSpectate, btnRefresh, btnGroupChat, btnMatchQueue, btnBack;
         private System.Windows.Forms.Label lblTitle;
     }
 }

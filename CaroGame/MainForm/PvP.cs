@@ -24,6 +24,7 @@ namespace Client.MainForm
             timeLeft = timeSet;
             InitializeComponent();
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            UITheme.Apply(this);
             RestartGames();
         }
         private void CheckGames()
@@ -65,7 +66,8 @@ namespace Client.MainForm
             {
                 btn.Enabled = true;
                 btn.Text = "?";
-                btn.BackColor = Color.White;
+                btn.BackColor = UITheme.CellEmpty;
+                btn.ForeColor = UITheme.TextMuted;
             }
             timerLeft.Start();
         }
@@ -79,7 +81,8 @@ namespace Client.MainForm
                 {
                     currPlayer = Player.X;
                     btn.Text = currPlayer.ToString();
-                    btn.BackColor = Color.OrangeRed;
+                    btn.BackColor = UITheme.CellX;
+                    btn.ForeColor = UITheme.TextPrimary;
                     btn.Enabled = false;
                     buttons.Remove(btn);
                     btnMoves.Add(btn);
@@ -99,18 +102,19 @@ namespace Client.MainForm
                 }
                 if (isButtonVisible)
                 {
-                    btnDelete.BackColor = Color.LightPink;
+                    btnDelete.BackColor = UITheme.CellBlink1;
                 }
                 else
                 {
-                    btnDelete.BackColor = Color.LightYellow;
+                    btnDelete.BackColor = UITheme.CellBlink2;
                 }
                 isButtonVisible = !isButtonVisible;
                 if (btnMoves.Count > 5)
                 {
                     btnDelete.Enabled = true;
                     btnDelete.Text = "?";
-                    btnDelete.BackColor = Color.White;
+                    btnDelete.BackColor = UITheme.CellEmpty;
+                    btnDelete.ForeColor = UITheme.TextMuted;
                     buttons.Add(btnDelete);
                     btnMoves.Remove(btnDelete);
                     btnDelete = new Button();
@@ -147,12 +151,14 @@ namespace Client.MainForm
                 if (currPlayer == Player.X)
                 {
                     currPlayer = Player.O;
-                    btn.BackColor = Color.Cyan;
+                    btn.BackColor = UITheme.CellO;
+                    btn.ForeColor = UITheme.TextPrimary;
                 }
                 else
                 {
                     currPlayer = Player.X;
-                    btn.BackColor = Color.OrangeRed;
+                    btn.BackColor = UITheme.CellX;
+                    btn.ForeColor = UITheme.TextPrimary;
                 }
                 btn.Text = currPlayer.ToString();
                 btn.Enabled = false;

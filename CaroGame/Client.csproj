@@ -88,6 +88,7 @@
     <Compile Include="Connection\MessageDispatcher.cs" />
     <Compile Include="Connection\GameClient.cs" />
     <Compile Include="Constants\DataCache.cs" />
+    <Compile Include="Constants\UITheme.cs" />
     <Compile Include="Constants\Infomation.cs">
       <SubType>Form</SubType>
     </Compile>

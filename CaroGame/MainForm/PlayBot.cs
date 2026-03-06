@@ -30,6 +30,7 @@ namespace Client.MainForm
             }
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeComponent();
+            UITheme.Apply(this);
             RestartGames();
         }
         private void CheckGames()
@@ -75,7 +76,8 @@ namespace Client.MainForm
             {
                 btn.Enabled = true;
                 btn.Text = "?";
-                btn.BackColor = Color.White;
+                btn.BackColor = UITheme.CellEmpty;
+                btn.ForeColor = UITheme.TextMuted;
             }
             if (levelBot == 1) timeLeft = 3;
             if (levelBot == 0) timeLeft = 10;
@@ -257,7 +259,8 @@ namespace Client.MainForm
             {
                 currPlayer = Player.O;
                 btn.Text = currPlayer.ToString();
-                btn.BackColor = Color.Cyan;
+                btn.BackColor = UITheme.CellO;
+                btn.ForeColor = UITheme.TextPrimary;
                 btn.Enabled = false;
                 buttons.Remove(btn);
                 btnMoves.Add(btn);
@@ -300,7 +303,8 @@ namespace Client.MainForm
             if (btn.Text == "?" && isAnotherMove == false)
             {
                 currPlayer = Player.X;
-                btn.BackColor = Color.OrangeRed;
+                btn.BackColor = UITheme.CellX;
+                btn.ForeColor = UITheme.TextPrimary;
                 btn.Text = currPlayer.ToString();
                 btn.Enabled = false;
                 buttons.Remove(btn);
@@ -322,7 +326,8 @@ namespace Client.MainForm
                 {
                     currPlayer = Player.X;
                     btn.Text = currPlayer.ToString();
-                    btn.BackColor = Color.OrangeRed;
+                    btn.BackColor = UITheme.CellX;
+                    btn.ForeColor = UITheme.TextPrimary;
                     btn.Enabled = false;
                     buttons.Remove(btn);
                     btnMoves.Add(btn);
@@ -352,18 +357,19 @@ namespace Client.MainForm
                 }
                 if (isButtonVisible)
                 {
-                    btnDelete.BackColor = Color.LightPink;
+                    btnDelete.BackColor = UITheme.CellBlink1;
                 }
                 else
                 {
-                    btnDelete.BackColor = Color.LightYellow;
+                    btnDelete.BackColor = UITheme.CellBlink2;
                 }
                 isButtonVisible = !isButtonVisible;
                 if (btnMoves.Count > maxCountDel)
                 {
                     btnDelete.Enabled = true;
                     btnDelete.Text = "?";
-                    btnDelete.BackColor = Color.White;
+                    btnDelete.BackColor = UITheme.CellEmpty;
+                    btnDelete.ForeColor = UITheme.TextMuted;
                     buttons.Add(btnDelete);
                     btnMoves.Remove(btnDelete);
                     btnDelete = new Button();

@@ -17,6 +17,7 @@ namespace Client.Constants
         {
             InitializeComponent();
             ShowUp();
+            UITheme.Apply(this);
         }
         void ShowUp()
         {            

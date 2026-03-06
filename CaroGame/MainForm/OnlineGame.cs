@@ -14,9 +14,10 @@ namespace Client.MainForm
     public class OnlineGame : Form
     {
         // ── Layout constants ─────────────────────────────────────────────────
-        private const int CELL_SIZE = 36;      // px per cell
-        private const int BOARD_PADDING = 20;  // px margin inside board panel
-        private const int CHAT_WIDTH = 220;
+        private const int CELL_SIZE     = 36;   // px per cell
+        private const int BOARD_PADDING = 20;   // px margin inside board panel
+        private const int CHAT_WIDTH    = 220;
+        private const int STAR_R        = 4;    // radius of Go star-point dot
 
         // ── Controls ─────────────────────────────────────────────────────────
         private Panel      pnlBoard;
@@ -63,6 +64,8 @@ namespace Client.MainForm
             this.MaximizeBox     = false;
             this.ClientSize      = new Size(formW, formH);
             this.StartPosition   = FormStartPosition.CenterScreen;
+            this.BackColor       = UITheme.BgDark;
+            this.ForeColor       = UITheme.TextPrimary;
             this.FormClosing    += OnFormClosing;
 
             // Board panel
@@ -70,7 +73,7 @@ namespace Client.MainForm
             {
                 Location  = new Point(10, 50),
                 Size      = new Size(boardPx, boardPx),
-                BackColor = Color.Bisque
+                BackColor = UITheme.BgPanel
             };
             pnlBoard.Paint      += OnBoardPaint;
             pnlBoard.MouseClick += OnBoardClick;
@@ -78,71 +81,93 @@ namespace Client.MainForm
             // Status labels
             lblRoom = new Label
             {
-                Location = new Point(10, 10),
-                Size     = new Size(boardPx, 30),
-                Font     = new Font("Segoe UI", 10f),
-                Text     = $"Phòng: {_room.Name} | Game: {_room.GameType}"
+                Location  = new Point(10, 10),
+                Size      = new Size(boardPx, 30),
+                Font      = new Font("Segoe UI Semibold", 10f),
+                ForeColor = UITheme.TextAccent,
+                BackColor = Color.Transparent,
+                Text      = $"Phòng: {_room.Name} | Game: {_room.GameType}"
             };
             lblStatus = new Label
             {
-                Location = new Point(10, formH - 40),
-                Size     = new Size(boardPx, 26),
-                Font     = new Font("Segoe UI", 9f),
-                ForeColor = Color.DarkBlue
+                Location  = new Point(10, formH - 40),
+                Size      = new Size(boardPx, 26),
+                Font      = new Font("Segoe UI", 9.5f),
+                ForeColor = UITheme.TextPrimary,
+                BackColor = Color.Transparent
             };
             lblMyPiece = new Label
             {
                 Location  = new Point(boardPx + 20, 50),
                 Size      = new Size(CHAT_WIDTH - 10, 24),
-                Font      = new Font("Segoe UI", 9f),
-                ForeColor = Color.DarkGreen
+                Font      = new Font("Segoe UI Semibold", 9.5f),
+                ForeColor = UITheme.AccentGreen,
+                BackColor = Color.Transparent
             };
 
             // Chat area
             rtbChat = new RichTextBox
             {
-                Location   = new Point(boardPx + 20, 80),
-                Size       = new Size(CHAT_WIDTH - 10, formH - 180),
-                ReadOnly   = true,
-                BackColor  = Color.WhiteSmoke,
-                BorderStyle= BorderStyle.FixedSingle
+                Location    = new Point(boardPx + 20, 80),
+                Size        = new Size(CHAT_WIDTH - 10, formH - 180),
+                ReadOnly    = true,
+                BackColor   = UITheme.InputBg,
+                ForeColor   = UITheme.TextPrimary,
+                BorderStyle = BorderStyle.None
             };
             txtChat = new TextBox
             {
                 Location  = new Point(boardPx + 20, formH - 90),
                 Size      = new Size(CHAT_WIDTH - 75, 28),
+                BackColor = UITheme.InputBg,
+                ForeColor = UITheme.TextPrimary,
+                BorderStyle = BorderStyle.FixedSingle,
                 Enabled   = !_isSpectating
             };
             txtChat.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) SendChat(); };
 
             btnSend = new Button
             {
-                Text     = "Gửi",
-                Location = new Point(boardPx + CHAT_WIDTH - 47, formH - 90),
-                Size     = new Size(47, 28),
-                FlatStyle= FlatStyle.Flat,
-                Enabled  = !_isSpectating
+                Text      = "Gửi",
+                Location  = new Point(boardPx + CHAT_WIDTH - 47, formH - 90),
+                Size      = new Size(47, 28),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = UITheme.AccentBlue,
+                ForeColor = UITheme.TextPrimary,
+                Font      = UITheme.SmallFont,
+                Cursor    = Cursors.Hand,
+                Enabled   = !_isSpectating
             };
+            btnSend.FlatAppearance.BorderSize = 0;
             btnSend.Click += (s, e) => SendChat();
 
             btnLeave = new Button
             {
-                Text     = "Rời phòng",
-                Location = new Point(boardPx + 20, formH - 50),
-                Size     = new Size(100, 30),
-                FlatStyle= FlatStyle.Flat,
-                BackColor= Color.LightCoral
+                Text      = "Rời phòng",
+                Location  = new Point(boardPx + 20, formH - 50),
+                Size      = new Size(100, 30),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = UITheme.AccentRed,
+                ForeColor = UITheme.TextPrimary,
+                Font      = UITheme.SmallFont,
+                Cursor    = Cursors.Hand
             };
+            btnLeave.FlatAppearance.BorderSize = 0;
             btnLeave.Click += (s, e) => this.Close();
 
             btnInvite = new Button
             {
-                Text     = "Mời bạn",
-                Location = new Point(boardPx + 130, formH - 50),
-                Size     = new Size(90, 30),
-                FlatStyle= FlatStyle.Flat,
-                Enabled  = !_isSpectating
+                Text      = "Mời bạn",
+                Location  = new Point(boardPx + 130, formH - 50),
+                Size      = new Size(90, 30),
+                FlatStyle = FlatStyle.Flat,
+                BackColor = UITheme.AccentBlue,
+                ForeColor = UITheme.TextPrimary,
+                Font      = UITheme.SmallFont,
+                Cursor    = Cursors.Hand,
+                Enabled   = !_isSpectating
             };
+            btnInvite.FlatAppearance.BorderSize = 0;
             btnInvite.Click += OnInviteClick;
 
             this.Controls.AddRange(new Control[] {
@@ -175,7 +200,7 @@ namespace Client.MainForm
             bool isGo = _room.GameType == GameType.Go;
 
             // Grid lines
-            using (var pen = new Pen(Color.DimGray))
+            using (var pen = new Pen(UITheme.BorderColor))
             {
                 for (int i = 0; i < n; i++)
                 {
@@ -195,7 +220,7 @@ namespace Client.MainForm
                     {
                         int cx = BOARD_PADDING + c * CELL_SIZE;
                         int cy = BOARD_PADDING + r * CELL_SIZE;
-                        g.FillEllipse(Brushes.Black, cx - 4, cy - 4, 8, 8);
+                        g.FillEllipse(Brushes.Gray, cx - STAR_R, cy - STAR_R, STAR_R * 2, STAR_R * 2);
                     }
             }
 
@@ -320,12 +345,12 @@ namespace Client.MainForm
                 case RoomStatus.Playing:
                     string turnName = _room.CurrentTurnUID == _myUID ? "Lượt của bạn!" : $"Lượt của {_room.CurrentTurnUID}";
                     lblStatus.Text = turnName;
-                    lblStatus.ForeColor = _room.CurrentTurnUID == _myUID ? Color.DarkGreen : Color.DarkBlue;
+                    lblStatus.ForeColor = _room.CurrentTurnUID == _myUID ? UITheme.AccentGreen : UITheme.TextMuted;
                     break;
                 case RoomStatus.Finished:
                     lblStatus.Text = string.IsNullOrEmpty(_room.WinnerUID) ? "Ván đã kết thúc." :
                                      _room.WinnerUID == "draw" ? "Ván hòa!" : $"Người thắng: {_room.WinnerUID}";
-                    lblStatus.ForeColor = Color.DarkRed;
+                    lblStatus.ForeColor = UITheme.AccentAmber;
                     break;
             }
 
@@ -362,6 +387,6 @@ namespace Client.MainForm
 
         /// <summary>Returns the draw color for a piece.</summary>
         private static Color PieceColor(string piece)
-            => piece == "X" ? Color.DarkRed : Color.DarkBlue;
+            => piece == "X" ? UITheme.CellX : UITheme.CellO;
     }
 }

@@ -17,6 +17,7 @@ namespace Client.Constants
         public MenuSelect()
         {
             InitializeComponent();
+            UITheme.Apply(this);
         }
         private void InitializeComponent()
         {

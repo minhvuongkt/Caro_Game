@@ -18,6 +18,7 @@ namespace Client.MainForm
 
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             InitializeComponent();
+            UITheme.Apply(this);
 
             // Start single central dispatcher (replaces per-client receive threads)
             MessageDispatcher.Instance.Start();

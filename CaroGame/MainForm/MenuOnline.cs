@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Client.Constants;
+using System;
 using System.Windows.Forms;
 
 namespace Client.MainForm
@@ -8,6 +9,7 @@ namespace Client.MainForm
         public MenuOnline()
         {
             InitializeComponent();
+            UITheme.Apply(this);
         }
 
         private void btnRoomLobby_Click(object sender, EventArgs e)

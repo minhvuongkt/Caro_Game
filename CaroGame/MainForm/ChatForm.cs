@@ -17,6 +17,7 @@ namespace Client.MainForm
         {
             _chatClient = new ChatClient();
             InitializeComponent();
+            UITheme.Apply(this);
             _chatClient.OnMessageReceived += OnMessageReceivedHandler;
             // Dispatcher already handles receiving; no separate thread needed
             DisableControls();

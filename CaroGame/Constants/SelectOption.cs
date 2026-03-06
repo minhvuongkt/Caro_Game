@@ -19,33 +19,34 @@ namespace Client.Constants
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.ControlBox = false;
+            this.Text = "Chọn thời gian mỗi lượt";
+            this.Size = new System.Drawing.Size(360, 180);
 
-            this.Text = "Select Time Play";
-            this.Size = new System.Drawing.Size(300, 200);
+            var lbl = new System.Windows.Forms.Label
+            {
+                Text = "Thời gian mỗi lượt:",
+                AutoSize = true,
+                Location = new System.Drawing.Point(20, 20),
+                Font = new System.Drawing.Font("Segoe UI Semibold", 12F)
+            };
+            this.Controls.Add(lbl);
 
-            btn30s = new Button();
-            btn30s.Text = "30s";
-            btn30s.Location = new System.Drawing.Point(30, 50);
+            btn30s = new Button { Text = "30 giây", Size = new System.Drawing.Size(90, 40), Location = new System.Drawing.Point(20,  60), FlatStyle = FlatStyle.Flat };
+            btn20s = new Button { Text = "20 giây", Size = new System.Drawing.Size(90, 40), Location = new System.Drawing.Point(130, 60), FlatStyle = FlatStyle.Flat };
+            btn10s = new Button { Text = "10 giây", Size = new System.Drawing.Size(90, 40), Location = new System.Drawing.Point(240, 60), FlatStyle = FlatStyle.Flat };
+            btnQuayLai = new Button { Text = "Quay lại", Size = new System.Drawing.Size(120, 40), Location = new System.Drawing.Point(115, 115), FlatStyle = FlatStyle.Flat, Name = "btnBack" };
+
             btn30s.Click += new EventHandler(btn30s_Click);
-            this.Controls.Add(btn30s);
-
-            btn20s = new Button();
-            btn20s.Text = "20s";
-            btn20s.Location = new System.Drawing.Point(110, 50);
             btn20s.Click += new EventHandler(btn20s_Click);
-            this.Controls.Add(btn20s);
-
-            btn10s = new Button();
-            btn10s.Text = "10s";
-            btn10s.Location = new System.Drawing.Point(190, 50);
             btn10s.Click += new EventHandler(btn10s_Click);
-            this.Controls.Add(btn10s);
-
-            btnQuayLai = new Button();
-            btnQuayLai.Text = "Back";
-            btnQuayLai.Location = new System.Drawing.Point(100, 100);
             btnQuayLai.Click += new EventHandler(BtnQuayLai_Click);
+
+            this.Controls.Add(btn30s);
+            this.Controls.Add(btn20s);
+            this.Controls.Add(btn10s);
             this.Controls.Add(btnQuayLai);
+
+            UITheme.Apply(this);
         }
         private void btn30s_Click(object sender, EventArgs e)
         {

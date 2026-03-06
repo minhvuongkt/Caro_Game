@@ -10,15 +10,23 @@ namespace Client.MainForm
     public partial class RoomLobby : Form
     {
         private System.Windows.Forms.Timer _refreshTimer;
+        private bool _isQueued; // tracks whether we are in the random-match queue
 
         public RoomLobby()
         {
             InitializeComponent();
+            UITheme.Apply(this);
+
             // Subscribe to room list updates from server
             GameClient.Instance.OnRoomListReceived += OnRoomListReceived;
             GameClient.Instance.OnRoomJoined       += OnRoomJoined;
             GameClient.Instance.OnGameStateUpdated += OnGameStateReceived;
             GameClient.Instance.OnRoomInviteReceived += OnInviteReceived;
+            // Matchmaking events
+            GameClient.Instance.OnMatchQueued    += OnMatchQueued;
+            GameClient.Instance.OnMatchFound     += OnMatchFound;
+            GameClient.Instance.OnMatchConfirmed += OnMatchConfirmed;
+            GameClient.Instance.OnMatchCancelled += OnMatchCancelled;
 
             // Auto-refresh every 3 s
             _refreshTimer = new System.Windows.Forms.Timer { Interval = 3000 };
@@ -66,10 +74,14 @@ namespace Client.MainForm
         private void OpenOnlineGame(Room room)
         {
             _refreshTimer.Stop();
-            GameClient.Instance.OnRoomListReceived  -= OnRoomListReceived;
-            GameClient.Instance.OnRoomJoined        -= OnRoomJoined;
-            GameClient.Instance.OnGameStateUpdated  -= OnGameStateReceived;
+            GameClient.Instance.OnRoomListReceived   -= OnRoomListReceived;
+            GameClient.Instance.OnRoomJoined         -= OnRoomJoined;
+            GameClient.Instance.OnGameStateUpdated   -= OnGameStateReceived;
             GameClient.Instance.OnRoomInviteReceived -= OnInviteReceived;
+            GameClient.Instance.OnMatchQueued        -= OnMatchQueued;
+            GameClient.Instance.OnMatchFound         -= OnMatchFound;
+            GameClient.Instance.OnMatchConfirmed     -= OnMatchConfirmed;
+            GameClient.Instance.OnMatchCancelled     -= OnMatchCancelled;
 
             var game = new OnlineGame(room);
             game.Show();
@@ -141,18 +153,76 @@ namespace Client.MainForm
             chat.Show();
         }
 
+        private void btnMatchQueue_Click(object sender, EventArgs e)
+        {
+            if (_isQueued)
+            {
+                GameClient.Instance.CancelMatchQueue();
+                _isQueued = false;
+                btnMatchQueue.Text = "Ghép trận ngẫu nhiên";
+            }
+            else
+            {
+                GameClient.Instance.QueueForMatch("Caro");
+                _isQueued = true;
+                btnMatchQueue.Text = "⏳ Đang tìm đối thủ… (bấm để hủy)";
+            }
+        }
+
         private void btnBack_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
+        // ── Matchmaking callbacks ────────────────────────────────────────────
+
+        private void OnMatchQueued(string gameType)
+        {
+            if (InvokeRequired) { Invoke(new Action(() => OnMatchQueued(gameType))); return; }
+            _isQueued = true;
+            btnMatchQueue.Text = $"⏳ Đang tìm đối thủ ({gameType})… (bấm để hủy)";
+        }
+
+        private void OnMatchFound(Client.Models.MatchFoundData data)
+        {
+            if (InvokeRequired) { Invoke(new Action(() => OnMatchFound(data))); return; }
+            _isQueued = false;
+            btnMatchQueue.Text = "Ghép trận ngẫu nhiên";
+            var result = MessageBox.Show(
+                $"Đã tìm thấy đối thủ!\n\nĐối thủ: {data.OpponentName}\nGame: {data.GameType}\n\nBạn có muốn chấp nhận trận đấu này không?",
+                "Ghép trận ngẫu nhiên", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+                GameClient.Instance.AcceptMatch(data.MatchID);
+            else
+                GameClient.Instance.DeclineMatch(data.MatchID);
+        }
+
+        private void OnMatchConfirmed(Client.Models.Room room)
+        {
+            if (InvokeRequired) { Invoke(new Action(() => OnMatchConfirmed(room))); return; }
+            DataCache.IsSpectating = false;
+            OpenOnlineGame(room);
+        }
+
+        private void OnMatchCancelled(string reason)
+        {
+            if (InvokeRequired) { Invoke(new Action(() => OnMatchCancelled(reason))); return; }
+            _isQueued = false;
+            btnMatchQueue.Text = "Ghép trận ngẫu nhiên";
+            MessageBox.Show(reason, "Ghép trận", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private void RoomLobby_FormClosing(object sender, FormClosingEventArgs e)
         {
             _refreshTimer.Stop();
-            GameClient.Instance.OnRoomListReceived  -= OnRoomListReceived;
-            GameClient.Instance.OnRoomJoined        -= OnRoomJoined;
-            GameClient.Instance.OnGameStateUpdated  -= OnGameStateReceived;
+            GameClient.Instance.OnRoomListReceived   -= OnRoomListReceived;
+            GameClient.Instance.OnRoomJoined         -= OnRoomJoined;
+            GameClient.Instance.OnGameStateUpdated   -= OnGameStateReceived;
             GameClient.Instance.OnRoomInviteReceived -= OnInviteReceived;
+            GameClient.Instance.OnMatchQueued        -= OnMatchQueued;
+            GameClient.Instance.OnMatchFound         -= OnMatchFound;
+            GameClient.Instance.OnMatchConfirmed     -= OnMatchConfirmed;
+            GameClient.Instance.OnMatchCancelled     -= OnMatchCancelled;
             var caroGames = new CaroGames();
             caroGames.Show();
         }
@@ -206,6 +276,8 @@ namespace Client.MainForm
 
             Controls.AddRange(new Control[] { lbl1, txtName, lbl2, cmbType, btnOk, btnCancel });
             AcceptButton = btnOk; CancelButton = btnCancel;
+
+            UITheme.Apply(this);
         }
     }
 }
