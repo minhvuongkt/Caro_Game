@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Client.Constants;
+using System;
 using System.Windows.Forms;
 
 namespace Client.MainForm
@@ -15,22 +9,20 @@ namespace Client.MainForm
         public MenuOnline()
         {
             InitializeComponent();
+            UITheme.Apply(this);
         }
 
-        private void btnRandomMatch_Click(object sender, EventArgs e)
+        private void btnRoomLobby_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Chưa phát triển ní ơi :3");
+            var lobby = new RoomLobby();
+            lobby.Show();
+            this.Hide();
         }
 
-        private void btnFindOppoent_Click(object sender, EventArgs e)
+        private void btnGroupChat_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void btnRoomChat_Click(object sender, EventArgs e)
-        {
-            var chatt = new ChatForm();
-            chatt.Show();
+            var chat = new ChatForm();
+            chat.Show();
         }
 
         private void MenuOnline_FormClosing(object sender, FormClosingEventArgs e)

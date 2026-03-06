@@ -8,10 +8,13 @@ namespace Client.Models
     }
     public class PlayerInfo
     {
-        public int ID { get; set; } = 0;
-        public string Fullname { get; set; } = string.Empty;
-        public string UID { get; set; } = string.Empty;
+        public int    ID          { get; set; } = 0;
+        public string Fullname    { get; set; } = string.Empty;
+        public string UID         { get; set; } = string.Empty;
         public List<Friend> Friends { get; set; } = new List<Friend>();
-        public int Score { get; set; } = 1000;
+        public int    Score       { get; set; } = 1000;
+        public int    Wins        { get; set; } = 0;
+        public int    Losses      { get; set; } = 0;
+        public int    Draws       { get; set; } = 0;
     }
 }

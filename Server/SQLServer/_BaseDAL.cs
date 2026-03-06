@@ -17,6 +17,10 @@ namespace Server.SQLServer
             _stringBuilder["User Id"] = Driver.gI().MySqlUsername;
             _stringBuilder["Password"] = Driver.gI().MySqlPassword;
             _stringBuilder["charset"] = "utf8mb4";
+            // Prevent MySqlDateTime → DateTime conversion failures for zero-value dates
+            _stringBuilder["Convert Zero Datetime"] = "true";
+            // Allow DateTime columns to store UTC values without timezone stripping
+            _stringBuilder["Allow Zero Datetime"] = "true";
         }
         protected _BaseDAL()
         {

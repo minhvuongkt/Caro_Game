@@ -136,14 +136,21 @@
     <Compile Include="Constants\Driver.cs" />
     <Compile Include="Handlers\ServerHandler.cs" />
     <Compile Include="Interfaces\IChatDAL.cs" />
+    <Compile Include="Interfaces\IGameHistoryDAL.cs" />
     <Compile Include="Interfaces\IPlayerDAL.cs" />
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\Friend.cs" />
+    <Compile Include="Models\GameHistory.cs" />
+    <Compile Include="Models\GameMove.cs" />
+    <Compile Include="Models\MatchmakingModels.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\Room.cs" />
+    <Compile Include="Models\RoomAction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLServer\ChatDAL.cs" />
+    <Compile Include="SQLServer\GameHistoryDAL.cs" />
     <Compile Include="SQLServer\PlayerDAL.cs" />
     <Compile Include="SQLServer\_BaseDAL.cs" />
   </ItemGroup>

@@ -84,7 +84,11 @@
   <ItemGroup>
     <Compile Include="Connection\ConnectToServer.cs" />
     <Compile Include="Connection\ChatClient.cs" />
+    <Compile Include="Connection\GameProxyClient.cs" />
+    <Compile Include="Connection\MessageDispatcher.cs" />
+    <Compile Include="Connection\GameClient.cs" />
     <Compile Include="Constants\DataCache.cs" />
+    <Compile Include="Constants\UITheme.cs" />
     <Compile Include="Constants\Infomation.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,6 +128,15 @@
     <Compile Include="MainForm\Online.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MainForm\OnlineGame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\RoomLobby.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\RoomLobby.Designer.cs">
+      <DependentUpon>RoomLobby.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm\PlayBot.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,8 +151,12 @@
     </Compile>
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\Friend.cs" />
+    <Compile Include="Models\GameMove.cs" />
+    <Compile Include="Models\MatchmakingModels.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\Player.cs" />
+    <Compile Include="Models\Room.cs" />
+    <Compile Include="Models\RoomAction.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Constants\Infomation.resx">
