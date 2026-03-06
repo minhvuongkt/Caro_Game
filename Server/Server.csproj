@@ -142,6 +142,7 @@
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\GameHistory.cs" />
     <Compile Include="Models\GameMove.cs" />
+    <Compile Include="Models\MatchmakingModels.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\Room.cs" />

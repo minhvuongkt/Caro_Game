@@ -41,6 +41,33 @@ namespace Server.Handlers
         private readonly object _roomLock = new object();
         private int _roomCounter = 0;
 
+        // ── Matchmaking state (in-memory) ─────────────────────────────────────
+        // Per-game-type FIFO queue of UIDs waiting for a random match
+        private readonly Dictionary<string, Queue<string>> _matchQueues
+            = new Dictionary<string, Queue<string>>(StringComparer.OrdinalIgnoreCase);
+        // O(1) membership test: all UIDs currently in any matchmaking queue
+        private readonly HashSet<string> _matchQueuedUids = new HashSet<string>();
+        // Pending matches awaiting both players to accept
+        private readonly Dictionary<string, PendingMatch> _pendingMatches
+            = new Dictionary<string, PendingMatch>();
+        // Reverse index: UID → current matchID (if any)
+        private readonly Dictionary<string, string> _uidToMatchId
+            = new Dictionary<string, string>();
+        private int _matchCounter = 0;
+        // In-memory player-name cache — populated on login to avoid DB calls inside _roomLock
+        private readonly Dictionary<string, string> _playerNameCache
+            = new Dictionary<string, string>();
+
+        private class PendingMatch
+        {
+            public string MatchID;
+            public string Player1UID;
+            public string Player2UID;
+            public string GameType;
+            public bool   Player1Accepted;
+            public bool   Player2Accepted;
+        }
+
         public ServerHandler()
         {
             playerDAL     = new PlayerDAL();
@@ -133,14 +160,28 @@ namespace Server.Handlers
                                 uidToSocket[clientIP] = client;
                                 var existing = playerDAL.GetPlayerByUID(clientIP);
                                 if (existing == null)
-                                { if (playerDAL.AddPlayer(player)) Send(client, new Message { MessageType = "Player", Data = player }); }
-                                else Send(client, new Message { MessageType = "Player", Data = existing });
+                                {
+                                    if (playerDAL.AddPlayer(player))
+                                    {
+                                        _playerNameCache[clientIP] = player.Fullname;
+                                        Send(client, new Message { MessageType = "Player", Data = player });
+                                    }
+                                }
+                                else
+                                {
+                                    _playerNameCache[clientIP] = existing.Fullname;
+                                    Send(client, new Message { MessageType = "Player", Data = existing });
+                                }
                             }
                             else if (player.UID == "GetPlayer")
                             {
                                 uidToSocket[clientIP] = client;
                                 var p = playerDAL.GetPlayerByUID(clientIP);
-                                if (p != null) Send(client, new Message { MessageType = "Player", Data = p });
+                                if (p != null)
+                                {
+                                    _playerNameCache[clientIP] = p.Fullname;
+                                    Send(client, new Message { MessageType = "Player", Data = p });
+                                }
                             }
                             else if (player.ID > 0) { playerDAL.UpdatePlayer(player); }
                             break;
@@ -229,17 +270,22 @@ namespace Server.Handlers
         {
             switch (action.Action)
             {
-                case "List":         SendRoomList(client); break;
-                case "Create":       CreateRoom(client, uid, action); break;
-                case "Join":         JoinRoomAsPlayer(client, uid, action.RoomID); break;
-                case "Spectate":     JoinRoomAsSpectator(client, uid, action.RoomID); break;
-                case "Leave":        LeaveRoom(uid); break;
-                case "Invite":       InvitePlayer(uid, action); break;
-                case "AcceptInvite": JoinRoomAsPlayer(client, uid, action.RoomID); break;
+                case "List":          SendRoomList(client); break;
+                case "Create":        CreateRoom(client, uid, action); break;
+                case "Join":          JoinRoomAsPlayer(client, uid, action.RoomID); break;
+                case "Spectate":      JoinRoomAsSpectator(client, uid, action.RoomID); break;
+                case "Leave":         LeaveRoom(uid); break;
+                case "Invite":        InvitePlayer(uid, action); break;
+                case "AcceptInvite":  JoinRoomAsPlayer(client, uid, action.RoomID); break;
                 case "DeclineInvite":
                     if (_rooms.TryGetValue(action.RoomID, out var rm) && uidToSocket.TryGetValue(rm.HostUID, out var hs))
                         Send(hs, new Message { MessageType = "InviteDeclined", Data = uid });
                     break;
+                // ── Matchmaking ───────────────────────────────────────────────
+                case "MatchQueue":    EnqueueForMatchmaking(uid, action.GameType ?? "Caro"); break;
+                case "MatchCancel":   CancelMatchmaking(uid); break;
+                case "MatchAccept":   AcceptMatch(uid, action.RoomID); break;
+                case "MatchDecline":  DeclineMatch(uid, action.RoomID); break;
             }
         }
 
@@ -378,7 +424,11 @@ namespace Server.Handlers
 
         private void HandlePlayerDisconnect(string uid)
         {
-            lock (_roomLock) { if (_uidToRoomId.ContainsKey(uid)) LeaveRoom(uid); }
+            lock (_roomLock)
+            {
+                if (_uidToRoomId.ContainsKey(uid)) LeaveRoom(uid);
+                CancelMatchmaking(uid);
+            }
         }
 
         // ── Game logic ────────────────────────────────────────────────────────
@@ -502,6 +552,213 @@ namespace Server.Handlers
             _rooms.Remove(roomId);
             _roomToGameHistoryId.Remove(roomId);
             _roomStartTime.Remove(roomId);
+        }
+
+        // ── Matchmaking helpers ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Adds <paramref name="uid"/> to the matchmaking queue for <paramref name="gameType"/>.
+        /// If a second player is already waiting, a pending match is created and both are notified.
+        /// </summary>
+        private void EnqueueForMatchmaking(string uid, string gameType)
+        {
+            lock (_roomLock)
+            {
+                // A player already in a room cannot queue
+                if (_uidToRoomId.ContainsKey(uid)) return;
+                // Remove from any previous queue / pending match first (idempotent re-queue)
+                RemoveFromQueues(uid);
+
+                if (!_matchQueues.TryGetValue(gameType, out var queue))
+                {
+                    queue = new Queue<string>();
+                    _matchQueues[gameType] = queue;
+                }
+
+                // O(1) duplicate check via _matchQueuedUids
+                if (!_matchQueuedUids.Contains(uid))
+                {
+                    queue.Enqueue(uid);
+                    _matchQueuedUids.Add(uid);
+                }
+
+                Console.WriteLine($"Matchmaking: {uid} queued for {gameType} (queue size: {queue.Count})");
+
+                // Notify the queueing player that they are now in the queue
+                if (uidToSocket.TryGetValue(uid, out var sock))
+                    Send(sock, new Message { MessageType = "MatchQueued", Data = gameType });
+
+                // Try to pair two players
+                if (queue.Count >= 2)
+                {
+                    string p1 = queue.Dequeue();
+                    string p2 = queue.Dequeue();
+                    _matchQueuedUids.Remove(p1);
+                    _matchQueuedUids.Remove(p2);
+
+                    string matchId = $"match_{++_matchCounter}";
+
+                    var pending = new PendingMatch
+                    {
+                        MatchID  = matchId,
+                        Player1UID = p1,
+                        Player2UID = p2,
+                        GameType = gameType
+                    };
+                    _pendingMatches[matchId] = pending;
+                    _uidToMatchId[p1] = matchId;
+                    _uidToMatchId[p2] = matchId;
+
+                    Console.WriteLine($"Matchmaking: match found {matchId} — {p1} vs {p2} ({gameType})");
+
+                    // Use cached names — no DB I/O while holding the lock
+                    string p1Name = GetCachedPlayerName(p1);
+                    string p2Name = GetCachedPlayerName(p2);
+
+                    NotifyMatchFound(p1, matchId, opponentUID: p2, opponentName: p2Name, gameType);
+                    NotifyMatchFound(p2, matchId, opponentUID: p1, opponentName: p1Name, gameType);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes <paramref name="uid"/> from all matchmaking queues and cancels any pending match
+        /// they are part of (notifying the opponent).
+        /// </summary>
+        private void CancelMatchmaking(string uid)
+        {
+            lock (_roomLock)
+            {
+                RemoveFromQueues(uid);
+
+                if (_uidToMatchId.TryGetValue(uid, out var matchId))
+                    DeclineMatch(uid, matchId, notifyRequester: false);
+            }
+        }
+
+        /// <summary>
+        /// Called when a player accepts a pending match.
+        /// If both players have accepted, a room is created and both receive MatchConfirmed.
+        /// </summary>
+        private void AcceptMatch(string uid, string matchId)
+        {
+            lock (_roomLock)
+            {
+                if (!_pendingMatches.TryGetValue(matchId, out var m)) return;
+
+                bool isP1 = m.Player1UID == uid;
+                if (isP1) m.Player1Accepted = true;
+                else if (m.Player2UID == uid) m.Player2Accepted = true;
+                else return; // not a participant
+
+                Console.WriteLine($"Matchmaking: {uid} accepted {matchId}");
+
+                if (m.Player1Accepted && m.Player2Accepted)
+                {
+                    // Both accepted — create the room
+                    _uidToMatchId.Remove(m.Player1UID);
+                    _uidToMatchId.Remove(m.Player2UID);
+                    _pendingMatches.Remove(matchId);
+
+                    var fakeAction = new RoomAction
+                    {
+                        GameType = m.GameType,
+                        RoomName = $"Match {matchId}"
+                    };
+                    // Create room with Player1 as host
+                    if (!uidToSocket.TryGetValue(m.Player1UID, out var s1)) return;
+                    CreateRoom(s1, m.Player1UID, fakeAction);
+
+                    // The room was just added; find it
+                    if (!_uidToRoomId.TryGetValue(m.Player1UID, out var roomId)) return;
+                    if (!uidToSocket.TryGetValue(m.Player2UID, out var s2)) return;
+
+                    // Join Player2
+                    JoinRoomAsPlayer(s2, m.Player2UID, roomId);
+
+                    // Notify both so the UI can navigate to the game
+                    if (_rooms.TryGetValue(roomId, out var room))
+                    {
+                        BroadcastToRoom(room, new Message { MessageType = "MatchConfirmed", Data = room });
+                        Console.WriteLine($"Matchmaking: {matchId} confirmed → room {roomId}");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when a player declines a pending match (or when CancelMatchmaking cleans up).
+        /// Notifies both players; the match is discarded.
+        /// Safe to call with or without <c>_roomLock</c> already held (C# Monitor is re-entrant).
+        /// </summary>
+        private void DeclineMatch(string uid, string matchId, bool notifyRequester = true)
+        {
+            lock (_roomLock)
+            {
+                if (!_pendingMatches.TryGetValue(matchId, out var m)) return;
+
+                string opponent = m.Player1UID == uid ? m.Player2UID : m.Player1UID;
+
+                _uidToMatchId.Remove(m.Player1UID);
+                _uidToMatchId.Remove(m.Player2UID);
+                _pendingMatches.Remove(matchId);
+
+                Console.WriteLine($"Matchmaking: {uid} declined {matchId}");
+
+                if (notifyRequester && uidToSocket.TryGetValue(uid, out var declinerSock))
+                    Send(declinerSock, new Message { MessageType = "MatchCancelled", Data = "You declined the match." });
+
+                if (uidToSocket.TryGetValue(opponent, out var oppSock))
+                    Send(oppSock, new Message { MessageType = "MatchCancelled", Data = "Opponent declined the match." });
+            }
+        }
+
+        private void NotifyMatchFound(string uid, string matchId,
+                                      string opponentUID, string opponentName, string gameType)
+        {
+            if (!uidToSocket.TryGetValue(uid, out var sock)) return;
+            Send(sock, new Message
+            {
+                MessageType = "MatchFound",
+                Data = new MatchFoundData
+                {
+                    MatchID      = matchId,
+                    OpponentUID  = opponentUID,
+                    OpponentName = opponentName,
+                    GameType     = gameType
+                }
+            });
+        }
+
+        /// <summary>
+        /// Removes <paramref name="uid"/> from every game-type queue.
+        /// O(n) rebuild is only triggered when the uid is actually queued (guarded by O(1) HashSet).
+        /// </summary>
+        private void RemoveFromQueues(string uid)
+        {
+            if (!_matchQueuedUids.Remove(uid)) return; // not queued — nothing to do
+
+            foreach (var queue in _matchQueues.Values)
+            {
+                if (!queue.Contains(uid)) continue;
+                var items = queue.ToArray();
+                queue.Clear();
+                foreach (var item in items)
+                    if (item != uid) queue.Enqueue(item);
+                break; // a UID can only appear in one game-type queue
+            }
+        }
+
+        private string GetCachedPlayerName(string uid)
+        {
+            return _playerNameCache.TryGetValue(uid, out var name) ? name : uid;
+        }
+
+        private string TryGetPlayerName(string uid)
+        {
+            if (_playerNameCache.TryGetValue(uid, out var cached)) return cached;
+            try { return playerDAL.GetPlayerByUID(uid)?.Fullname ?? uid; }
+            catch { return uid; }
         }
 
         // ── Helpers ───────────────────────────────────────────────────────────

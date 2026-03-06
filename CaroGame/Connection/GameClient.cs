@@ -25,15 +25,37 @@ namespace Client.Connection
         public event Action<Chat>       OnRoomChatReceived;
         public event Action<string>     OnInviteDeclined; // payload = decliner UID
 
+        // ── Matchmaking events ────────────────────────────────────────────────
+
+        /// <summary>Raised when the server adds us to the matchmaking queue.</summary>
+        public event Action<string>         OnMatchQueued;         // payload = gameType
+
+        /// <summary>
+        /// Raised when the server has found an opponent.
+        /// Show an accept/decline dialog; call AcceptMatch or DeclineMatch within the timeout.
+        /// </summary>
+        public event Action<MatchFoundData> OnMatchFound;
+
+        /// <summary>Raised when both players accepted — the Room is ready to enter.</summary>
+        public event Action<Room>           OnMatchConfirmed;
+
+        /// <summary>Raised when the match was cancelled (either player declined).</summary>
+        public event Action<string>         OnMatchCancelled;      // payload = reason string
+
         private GameClient()
         {
             _connectToServer = new ConnectToServer();
-            MessageDispatcher.Instance.Register("RoomList",      OnRoomListMsg);
-            MessageDispatcher.Instance.Register("Room",          OnRoomMsg);
-            MessageDispatcher.Instance.Register("GameState",     OnGameStateMsg);
-            MessageDispatcher.Instance.Register("RoomInvite",    OnRoomInviteMsg);
-            MessageDispatcher.Instance.Register("RoomChat",      OnRoomChatMsg);
-            MessageDispatcher.Instance.Register("InviteDeclined",OnInviteDeclinedMsg);
+            MessageDispatcher.Instance.Register("RoomList",       OnRoomListMsg);
+            MessageDispatcher.Instance.Register("Room",           OnRoomMsg);
+            MessageDispatcher.Instance.Register("GameState",      OnGameStateMsg);
+            MessageDispatcher.Instance.Register("RoomInvite",     OnRoomInviteMsg);
+            MessageDispatcher.Instance.Register("RoomChat",       OnRoomChatMsg);
+            MessageDispatcher.Instance.Register("InviteDeclined", OnInviteDeclinedMsg);
+            // Matchmaking
+            MessageDispatcher.Instance.Register("MatchQueued",    OnMatchQueuedMsg);
+            MessageDispatcher.Instance.Register("MatchFound",     OnMatchFoundMsg);
+            MessageDispatcher.Instance.Register("MatchConfirmed", OnMatchConfirmedMsg);
+            MessageDispatcher.Instance.Register("MatchCancelled", OnMatchCancelledMsg);
         }
 
         // ── Inbound handlers ─────────────────────────────────────────────────
@@ -78,6 +100,34 @@ namespace Client.Connection
         {
             var uid = msg.Data?.ToString();
             OnInviteDeclined?.Invoke(uid);
+        }
+
+        // ── Matchmaking inbound ───────────────────────────────────────────────
+
+        private void OnMatchQueuedMsg(Models.Message msg)
+        {
+            var gameType = msg.Data?.ToString();
+            OnMatchQueued?.Invoke(gameType);
+        }
+
+        private void OnMatchFoundMsg(Models.Message msg)
+        {
+            var data = Unwrap<MatchFoundData>(msg.Data);
+            if (data != null) OnMatchFound?.Invoke(data);
+        }
+
+        private void OnMatchConfirmedMsg(Models.Message msg)
+        {
+            var room = Unwrap<Room>(msg.Data);
+            if (room == null) return;
+            DataCache.CurrentRoom = room;
+            OnMatchConfirmed?.Invoke(room);
+        }
+
+        private void OnMatchCancelledMsg(Models.Message msg)
+        {
+            var reason = msg.Data?.ToString() ?? "Match cancelled.";
+            OnMatchCancelled?.Invoke(reason);
         }
 
         // ── Outbound helpers ─────────────────────────────────────────────────
@@ -125,6 +175,40 @@ namespace Client.Connection
             _connectToServer.Send(new Models.Message { MessageType = "RoomChat", Data = chat });
         }
 
+        // ── Matchmaking outbound ──────────────────────────────────────────────
+
+        /// <summary>Enter the random-match queue for the specified game type.</summary>
+        public void QueueForMatch(string gameType)
+            => _connectToServer.Send(new Models.Message
+            {
+                MessageType = "RoomAction",
+                Data = new RoomAction { Action = "MatchQueue", GameType = gameType }
+            });
+
+        /// <summary>Leave the random-match queue without being paired.</summary>
+        public void CancelMatchQueue()
+            => _connectToServer.Send(new Models.Message
+            {
+                MessageType = "RoomAction",
+                Data = new RoomAction { Action = "MatchCancel" }
+            });
+
+        /// <summary>Accept a pending random match offer.</summary>
+        public void AcceptMatch(string matchId)
+            => _connectToServer.Send(new Models.Message
+            {
+                MessageType = "RoomAction",
+                Data = new RoomAction { Action = "MatchAccept", RoomID = matchId }
+            });
+
+        /// <summary>Decline a pending random match offer.</summary>
+        public void DeclineMatch(string matchId)
+            => _connectToServer.Send(new Models.Message
+            {
+                MessageType = "RoomAction",
+                Data = new RoomAction { Action = "MatchDecline", RoomID = matchId }
+            });
+
         // ── Util ─────────────────────────────────────────────────────────────
 
         private static T Unwrap<T>(object data)
@@ -134,3 +218,4 @@ namespace Client.Connection
         }
     }
 }
+

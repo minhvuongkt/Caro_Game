@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="Connection\ConnectToServer.cs" />
     <Compile Include="Connection\ChatClient.cs" />
+    <Compile Include="Connection\GameProxyClient.cs" />
     <Compile Include="Connection\MessageDispatcher.cs" />
     <Compile Include="Connection\GameClient.cs" />
     <Compile Include="Constants\DataCache.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Models\Chat.cs" />
     <Compile Include="Models\Friend.cs" />
     <Compile Include="Models\GameMove.cs" />
+    <Compile Include="Models\MatchmakingModels.cs" />
     <Compile Include="Models\Message.cs" />
     <Compile Include="Models\Player.cs" />
     <Compile Include="Models\Room.cs" />

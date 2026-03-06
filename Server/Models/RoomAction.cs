@@ -1,13 +1,14 @@
 namespace Server.Models
 {
-    // Action values: "Create" | "Join" | "Spectate" | "Leave" | "Invite" |
+    // Room actions:  "Create" | "Join" | "Spectate" | "Leave" | "Invite" |
     //                "AcceptInvite" | "DeclineInvite" | "List"
+    // Matchmaking:   "MatchQueue" | "MatchCancel" | "MatchAccept" | "MatchDecline"
     public class RoomAction
     {
         public string Action { get; set; }
-        public string RoomID { get; set; }
+        public string RoomID { get; set; }      // room ID; also used as MatchID for matchmaking responses
         public string TargetUID { get; set; }   // used by Invite
-        public string GameType { get; set; }    // used by Create: "Caro" | "Go" | "TwoVsTwo"
+        public string GameType { get; set; }    // used by Create / MatchQueue: "Caro" | "Go" | "TwoVsTwo"
         public string RoomName { get; set; }    // used by Create
     }
 
